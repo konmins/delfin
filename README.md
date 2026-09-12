@@ -86,13 +86,13 @@ Delfin 把这些收进系统托盘：
 
 ### 方式一：下载现成的 exe
 
-到 [Releases](https://github.com/YOUR_GITHUB_USERNAME/delfin/releases) 下载 `dsh-tray.exe`，放到任意目录，双击即可。
+到 [Releases](https://github.com/konmins/delfin/releases) 下载 `dsh-tray.exe`，放到任意目录，双击即可。
 需要本机已装 **Node.js**（`dsh` 依赖它）。
 
 ### 方式二：从源码运行
 
 ```bat
-git clone https://github.com/YOUR_GITHUB_USERNAME/delfin.git
+git clone https://github.com/konmins/delfin.git
 cd delfin
 
 pip install -r requirements.txt

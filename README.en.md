@@ -89,13 +89,13 @@ Drop a shortcut to `start-tray.vbs` into your Startup folder:
 
 ### Option 1: grab the prebuilt exe
 
-Download `dsh-tray.exe` from [Releases](https://github.com/YOUR_GITHUB_USERNAME/delfin/releases), drop it anywhere, double-click.
+Download `dsh-tray.exe` from [Releases](https://github.com/konmins/delfin/releases), drop it anywhere, double-click.
 You need **Node.js** installed (it is what runs `dsh`).
 
 ### Option 2: run from source
 
 ```bat
-git clone https://github.com/YOUR_GITHUB_USERNAME/delfin.git
+git clone https://github.com/konmins/delfin.git
 cd delfin
 
 pip install -r requirements.txt

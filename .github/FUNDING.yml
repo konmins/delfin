@@ -3,14 +3,13 @@
 # 说明：custom 里必须是完整的 https 链接。微信/支付宝收款码是图片而非网页，
 # 无法直接作为链接目标，所以这里指向 README 的「赞赏」章节，点进去即可看到收款码。
 #
-# ⚠️ 用之前请把 YOUR_GITHUB_USERNAME 换成你的 GitHub 用户名（共 1 处），
-#    或者干脆删掉 custom 这段，此时 GitHub 不会显示 Sponsor 按钮。
+# 如果想关掉 Sponsor 按钮，删掉下面 custom 这段即可（GitHub 就不会渲染了）。
 
 custom:
-  - "https://github.com/YOUR_GITHUB_USERNAME/delfin#赞赏"
+  - "https://github.com/konmins/delfin#赞赏"
 
 # 如果以后开了爱发电，把下面这行取消注释并填上主页地址（可与上面的 custom 并存）：
 #   - "https://afdian.com/a/YOUR_AFDIAN_ID"
 #
 # 如果以后满足了 GitHub Sponsors 的开通条件，取消下面这行注释：
-# github: [YOUR_GITHUB_USERNAME]
+# github: [konmins]
