@@ -31,6 +31,11 @@ __pycache__/
 .venv/
 venv/
 
+# --- Node ---
+# dsh 本身靠 npx 跑；万一有人在本目录 npm install，别把几百 MB 的依赖提上来
+node_modules/
+npm-debug.log*
+
 # --- 本机专用脚本：内含绝对路径与特定环境假设，不适合分发 ---
 clean-launch.py
 diag_stability.py
