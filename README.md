@@ -185,9 +185,9 @@ delfin/
 如果这个小工具帮到了你，欢迎请作者喝杯咖啡 ☕
 
 <p>
-  <img src="assets/donate/wechat.png" alt="微信赞赏码" width="240">
+  <img src="assets/donate/wechat.jpg" alt="微信赞赏码" width="240">
   &nbsp;&nbsp;&nbsp;
-  <img src="assets/donate/alipay.png" alt="支付宝收款码" width="240">
+  <img src="assets/donate/alipay.jpg" alt="支付宝收款码" width="240">
 </p>
 
 也可以直接给这个仓库点个 ⭐ —— 那是最不要钱的鼓励。
