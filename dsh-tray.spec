@@ -37,7 +37,10 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    # UPX 压缩是杀软启发式的头号触发点之一（改变二进制结构、带自解压特征）。
+    # 本机没装 upx 时 PyInstaller 会静默跳过，但别人机器上装了 upx 就会真的压 ——
+    # 打出来的包误报率陡增。显式关掉，不留这个地雷。
+    upx=False,
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
@@ -47,4 +50,6 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=[os.path.join(HERE, 'assets', 'dsh-tray.ico')],
+    # 版本资源：未签名 + 无公司/产品/版本号的 PE，是 !ml 启发式误判的重灾区
+    version=os.path.join(HERE, 'version_info.txt'),
 )

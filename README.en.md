@@ -99,6 +99,19 @@ Drop a shortcut to `start-tray.vbs` into your Startup folder:
 Download `dsh-tray.exe` from [Releases](https://github.com/konmins/delfin/releases), drop it anywhere, double-click.
 You need **Node.js** installed (it is what runs `dsh`).
 
+> **⚠️ Windows Defender may flag this exe as a false positive**
+>
+> It is built with PyInstaller in `--onefile` mode and is **not code signed**, so Defender's
+> machine-learning heuristic reports it as `Trojan:Win32/Sabsik.FL.A!ml`.
+>
+> Note the `!ml` suffix — that means a **heuristic/ML verdict, not a match against real malware
+> signatures**. This is a long-standing, widely reported false positive for PyInstaller onefile
+> builds and has nothing to do with the code itself. All sources are public, so you can build
+> and run it yourself via [Option 2](#option-2-run-from-source).
+>
+> For how to get past the block in the meantime, see the [FAQ](#faq); if the steps there still
+> leave you stuck, please open an issue.
+
 ### Option 2: run from source
 
 ```bat
@@ -174,6 +187,28 @@ delfin/
 ```
 
 ## FAQ
+
+**The download is blocked, or the file vanishes after downloading?**
+
+That is Defender misfiring on an unsigned PyInstaller onefile build
+(`Trojan:Win32/Sabsik.FL.A!ml`) — see the note under
+[Option 1](#option-1-grab-the-prebuilt-exe). **It is not actually malware.** Workarounds:
+
+1. **The file disappeared after downloading** → Defender quarantined it. Open Windows Security →
+   Virus & threat protection → Protection history, find the `Trojan:Win32/Sabsik.FL.A!ml` entry,
+   then Actions → Restore.
+2. **Restore is unavailable (shown as removed)** → add an exclusion first, then re-download:
+   Virus & threat protection → Manage settings → Exclusions → Add or remove exclusions → Add →
+   Folder, and pick the folder you intend to keep `dsh-tray.exe` in.
+3. **Edge says the download "can't be downloaded securely"** → click `…` on the download item
+   and choose **Keep**.
+4. **Not comfortable touching antivirus settings** → use
+   [Option 2](#option-2-run-from-source) and run it from source instead.
+
+> Separately: if all you get is the "Windows protected your PC / unknown publisher" prompt, that
+> is SmartScreen's routine warning for an unsigned download — choose More info → Run anyway. You
+> can also run `Unblock-File .\dsh-tray.exe` to strip the mark-of-the-web, but note that this
+> **only affects the SmartScreen prompt; it does not clear Defender's malware verdict.**
 
 **No dolphin in my tray?**
 Windows filed it away in the overflow area — see the end of "Usage" above.

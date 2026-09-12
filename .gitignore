@@ -13,6 +13,10 @@ runtime/
 build/
 dist/
 
+# onedir 构建产物（用于对比 onefile 的杀软误报，见 version_info.txt 里的说明）
+build-onedir/
+dist-onedir/
+
 # 打包出的可执行文件走 GitHub Releases，不进源码仓库
 *.exe
 
