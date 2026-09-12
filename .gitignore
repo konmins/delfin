@@ -1,0 +1,47 @@
+# ==================================================================
+# dsh-tray
+#
+# 注意：.gitignore 不支持「行尾注释」。`logs/   # 说明` 会被整行当成
+# 一个模式，结果什么都不匹配 —— 所以注释一律独占一行。
+# ==================================================================
+
+# --- 运行时产物：体积大、含本机状态，不进仓库 ---
+# logs/ 里的 dsh.log 记着带 token 的访问地址（形如 ?token=xxx），
+# 拿到它就能直接操作本地服务，务必不要提交。
+logs/
+runtime/
+build/
+dist/
+
+# 打包出的可执行文件走 GitHub Releases，不进源码仓库
+*.exe
+
+# 进程号文件与日志
+*.pid
+*.log
+
+# --- 本机配置与状态 ---
+settings.json
+.dsh.pid
+.traydbg.pid
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- 本机专用脚本：内含绝对路径与特定环境假设，不适合分发 ---
+clean-launch.py
+diag_stability.py
+
+# --- 旧版本实现（PowerShell / C#），当前仓库不含 ---
+dsh-tray.ps1
+dsh-tray.cs
+
+# --- 第三方商标素材 ---
+# 图标形状已固化为 assets/whale_mask.png，官方 favicon 原件不随仓库分发
+assets/ds-favicon.ico
+assets/favicon_view.png
+assets/tray_shot.png
+assets/tray_flyout.png

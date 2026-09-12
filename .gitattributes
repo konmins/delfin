@@ -1,0 +1,13 @@
+# 仓库内统一使用 LF，检出时按下面规则还原
+* text=auto eol=lf
+
+# Windows 批处理与脚本必须保留 CRLF，否则可能无法执行
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.vbs text eol=crlf
+
+# 二进制文件不做换行转换
+*.png binary
+*.ico binary
+*.jpg binary
+*.exe binary
