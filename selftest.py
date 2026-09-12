@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""dsh-tray 纯逻辑自检（不启动托盘）"""
+"""Delfin 纯逻辑自检（不启动托盘）"""
 import os
 import sys
 

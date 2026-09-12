@@ -7,7 +7,7 @@
 #    或者干脆删掉 custom 这段，此时 GitHub 不会显示 Sponsor 按钮。
 
 custom:
-  - "https://github.com/YOUR_GITHUB_USERNAME/dsh-tray#赞赏"
+  - "https://github.com/YOUR_GITHUB_USERNAME/delfin#赞赏"
 
 # 如果以后开了爱发电，把下面这行取消注释并填上主页地址（可与上面的 custom 并存）：
 #   - "https://afdian.com/a/YOUR_AFDIAN_ID"

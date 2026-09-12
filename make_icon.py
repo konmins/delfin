@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-dsh 托盘图标生成器
-输入：assets/ds-favicon.ico（DeepSeek 官方小海豚，225x225 RGBA）
+Delfin 图标生成器
+输入：assets/whale_mask.png（已固化的海豚形状遮罩）；缺该文件时回退到 assets/ds-favicon.ico
 产出：
   - dsh_icons.py        base64 图标（被 dsh-tray.py 引用，保证 exe 自包含）
   - assets/dsh-tray.ico 多尺寸 exe 图标

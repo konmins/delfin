@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller 打包配置：dsh-tray -> 单文件、无控制台窗口的 exe
+"""PyInstaller 打包配置：Delfin -> 单文件、无控制台窗口的 exe
 
 用法：
     pyinstaller dsh-tray.spec --noconfirm

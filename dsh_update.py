@@ -47,7 +47,7 @@ def local_version(runtime_pkg):
 def fetch_dist_tags(timeout=15):
     """查询 npm registry 的 dist-tags"""
     req = urllib.request.Request(REGISTRY_URL, headers={
-        "User-Agent": "dsh-tray",
+        "User-Agent": "delfin",
         "Accept": "application/vnd.npm.install-v1+json",
     })
     with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -95,7 +95,7 @@ MANIFEST = {
     "name": "dsh-runtime",
     "private": True,
     "version": "1.0.0",
-    "description": "本地受管 dsh 运行时（由 dsh-tray 更新/维护）",
+    "description": "本地受管 dsh 运行时（由 Delfin 更新/维护）",
     "dependencies": {},
 }
 

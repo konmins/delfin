@@ -1,10 +1,12 @@
 <div align="center">
 
-# dsh-tray
+# Delfin
 
 **DeepSeek Harness (`dsh`) 的 Windows 系统托盘控制器**
 
 服务状态一眼可见，启停重启一键完成，内置版本管理与一键更新。
+
+<sub>Delfin —— 德语与西班牙语里的「海豚」。就像任务栏角落那只小海豚，安静地守着你的 dsh。</sub>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-4D6BFE.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-0078D4.svg)](#系统要求)
@@ -21,7 +23,7 @@
 
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（命令 `dsh`）提供了一个本地 Web 控制台。但它需要一直挂着一个终端窗口，出了问题也只能对着滚动的日志发呆。
 
-`dsh-tray` 把这些收进系统托盘：
+Delfin 把这些收进系统托盘：
 
 - 海豚图标右下角一个 **绿点/红点**，扫一眼就知道服务活着没有
 - 右键即可 **启动 / 停止 / 重启**，打开 Web 界面
@@ -76,14 +78,14 @@
 
 ### 方式一：下载现成的 exe
 
-到 [Releases](https://github.com/YOUR_GITHUB_USERNAME/dsh-tray/releases) 下载 `dsh-tray.exe`，放到任意目录，双击即可。
+到 [Releases](https://github.com/YOUR_GITHUB_USERNAME/delfin/releases) 下载 `dsh-tray.exe`，放到任意目录，双击即可。
 需要本机已装 **Node.js**（`dsh` 依赖它）。
 
 ### 方式二：从源码运行
 
 ```bat
-git clone https://github.com/YOUR_GITHUB_USERNAME/dsh-tray.git
-cd dsh-tray
+git clone https://github.com/YOUR_GITHUB_USERNAME/delfin.git
+cd delfin
 
 pip install -r requirements.txt
 python dsh-tray.py
@@ -132,7 +134,7 @@ runtime/                                  ← 托盘创建和维护
 ## 目录结构
 
 ```
-dsh-tray/
+delfin/
 ├── dsh-tray.py           主程序：托盘图标、菜单、状态轮询、服务控制
 ├── dsh_update.py         纯逻辑模块：semver 比较、registry 查询、运行时安装
 ├── dsh_icons.py          自动生成的图标（base64 内嵌，保证 exe 自包含）
@@ -203,7 +205,7 @@ dsh-tray/
 
 ## English
 
-`dsh-tray` is an unofficial Windows system-tray controller for
+`Delfin` is an unofficial Windows system-tray controller for
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`).
 
 A green/red dot on the tray icon shows whether the local `dsh web` service is alive;
