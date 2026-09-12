@@ -42,6 +42,7 @@ Delfin moves all of that into the system tray:
 | Version management | Ships its own locally managed runtime (`runtime/`), so the version is explicit and switchable at will |
 | One-click update | Stop the service → download and install → restart automatically, announced by a single balloon |
 | Multiple channels | `latest` / `next` / `alpha`; your preference is persisted in `settings.json` |
+| Bilingual UI | Chinese and English strings are built in. It **follows your system language** by default and can be switched from the tray menu at any time |
 | Silent auto-check | One quiet check 8 seconds after launch. It only speaks up when there is genuinely a new version |
 | Single instance | A named mutex keeps it to one tray process, so double-clicking won't breed extra dolphins |
 | Crash forensics | Every exception is written to `logs/tray.log`; the polling thread never dies, and the icon is rebuilt automatically if the message loop ever ends unexpectedly |
@@ -51,19 +52,25 @@ Delfin moves all of that into the system tray:
 
 Right-click the tray icon:
 
-> The tray menu itself is currently **Chinese-only**. The labels below are quoted as they actually appear, with an English gloss.
+> The UI is bilingual. On a non-Chinese Windows the labels below are exactly what you'll see.
 
 | Menu item | Description |
 | --- | --- |
-| `状态: 运行中 · v0.1.5-rc.1`<br>*(Status: running)* | Read-only status line, showing the current version |
-| `打开 Web 界面 (http://127.0.0.1:3080)`<br>*(Open Web UI)* | Opens the full token-bearing URL; greyed out while the service is down |
-| `启动服务` / `停止服务` / `重启服务`<br>*(Start / Stop / Restart service)* | Stop and Restart are greyed out while the service is down, and vice versa |
-| `检查更新`<br>*(Check for updates)* | Queries the `dist-tags` on the npm registry |
-| `更新到 v0.1.6（通道 latest）`<br>*(Update to vX)* | Only appears when a newer version exists; shows `已是最新（vX）` (up to date) otherwise |
-| `更新通道 ▸`<br>*(Update channel)* | Radio choice of `latest` / `next` / `alpha`; re-checks immediately after you pick one |
-| `查看更新日志`<br>*(View update log)* | Opens `logs/update.log` (includes the full npm command line) |
-| `查看服务日志`<br>*(View service log)* | Opens `logs/dsh.log` |
-| `退出托盘`<br>*(Quit tray)* | Closes the tray process only — **the service keeps running** |
+| `Status: running  ·  v0.1.5-rc.1` | Read-only status line, showing the current version |
+| `Open Web UI (http://127.0.0.1:3080)` | Opens the full token-bearing URL; greyed out while the service is down |
+| `Start service` / `Stop service` / `Restart service` | Stop and Restart are greyed out while the service is down, and vice versa |
+| `Check for updates` | Queries the `dist-tags` on the npm registry |
+| `Update to v0.1.6 (channel latest)` | Only appears when a newer version exists; shows `Up to date (vX)` otherwise |
+| `Update channel ▸` | Radio choice of `latest` / `next` / `alpha`; re-checks immediately after you pick one |
+| `View update log` | Opens `logs/update.log` (includes the full npm command line) |
+| `View service log` | Opens `logs/dsh.log` |
+| `语言 / Language ▸`<br>*(Language)* | Radio choice of `简体中文` / `English`; takes effect at once and is saved to `settings.json` |
+| `Quit tray` | Closes the tray process only — **the service keeps running** |
+
+> **About the UI language**: on first run it follows your Windows display language (English unless
+> the system is Chinese). The language submenu always writes each language **in its own language**,
+> so even if auto-detection guesses wrong you can still find the switcher. The
+> `语言 / Language` entry itself is deliberately bilingual.
 
 > **Can't find the icon?** Windows files newly appeared tray icons into the "hidden icons" overflow (the `^` arrow on the taskbar).
 > Drag the dolphin out of that panel onto the taskbar to pin it permanently.
@@ -142,6 +149,7 @@ runtime/                                  ← created and maintained by the tray
 delfin/
 ├── dsh-tray.py           Main program: tray icon, menu, status polling, service control
 ├── dsh_update.py         Pure logic: semver comparison, registry lookup, runtime install
+├── dsh_i18n.py           Chinese/English UI strings + system-language detection
 ├── dsh_icons.py          Generated icons (base64-embedded so the exe stays self-contained)
 ├── make_icon.py          Icon generator: shape mask + status dot → dsh_icons.py / .ico / preview.png
 ├── dsh-runner.cmd        Service launcher, invoked by the tray
@@ -179,6 +187,12 @@ is recorded there.
 **Can I change the port?**
 Yes — set the `DSH_PORT` environment variable and restart the tray; both the menu and the
 reachability probe follow it.
+
+**Can I change the UI language?**
+Yes. Right-click the tray → `语言 / Language` → pick `简体中文` or `English`. It takes effect
+immediately and is saved to `settings.json`. The first run picks a language from your Windows
+display language (English unless the system is Chinese). You can also force one at launch with
+`dsh-tray.exe --lang en` (or `--lang=en`).
 
 ## Disclaimer
 
