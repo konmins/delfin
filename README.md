@@ -10,6 +10,7 @@
 
 <sub>Delfin —— 德语与西班牙语里的「海豚」。就像任务栏角落那只小海豚，安静地守着你的 dsh。</sub>
 
+[![Release](https://img.shields.io/github/v/release/konmins/delfin?label=release&color=4D6BFE)](https://github.com/konmins/delfin/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4D6BFE.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-0078D4.svg)](#系统要求)
 [![Python](https://img.shields.io/badge/python-3.9%2B-3776AB.svg)](#方式二从源码运行)
