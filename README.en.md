@@ -56,9 +56,9 @@ Right-click the tray icon:
 > The UI is bilingual. On a non-Chinese Windows the labels below are exactly what you'll see.
 
 <p align="center">
-  <img src="assets/tray-menu-zh.png" alt="Delfin tray menu (service running)">
+  <img src="assets/tray-menu-en.png" alt="Delfin tray menu (service running)">
   <br>
-  <sub>The menu reflects live service state — "Stop / Restart" grey out while the service is down, and "Check for updates" reports its result inline. The screenshot shows the Simplified Chinese UI; on an English Windows you get exactly the labels listed below.</sub>
+  <sub>The menu reflects live service state — "Stop / Restart" grey out while the service is down, and "Check for updates" reports its result inline.</sub>
 </p>
 
 | Menu item | Description |
