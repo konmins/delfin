@@ -1,5 +1,7 @@
 <div align="center">
 
+**简体中文** · [English](README.en.md)
+
 # Delfin
 
 **DeepSeek Harness (`dsh`) 的 Windows 系统托盘控制器**
@@ -10,7 +12,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-4D6BFE.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-0078D4.svg)](#系统要求)
-[![Python](https://img.shields.io/badge/python-3.9%2B-3776AB.svg)](#从源码运行)
+[![Python](https://img.shields.io/badge/python-3.9%2B-3776AB.svg)](#方式二从源码运行)
 [![Unofficial](https://img.shields.io/badge/DeepSeek-%E9%9D%9E%E5%AE%98%E6%96%B9-red.svg)](#免责声明)
 
 <img src="preview.png" alt="托盘图标预览（上：运行中 / 下：已停止）" width="760">
@@ -208,11 +210,4 @@ delfin/
 `Delfin` is an unofficial Windows system-tray controller for
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`).
 
-A green/red dot on the tray icon shows whether the local `dsh web` service is alive;
-right-click to start / stop / restart it, open the (token-bearing) Web UI, or check for
-and install updates across the `latest` / `next` / `alpha` channels.
-
-Requires Windows 10/11 and Node.js 18+. Licensed under MIT.
-
-Not affiliated with DeepSeek. The DeepSeek logo used for the tray icon is a trademark of
-its owner and is excluded from the MIT grant.
+**Full English documentation: [README.en.md](README.en.md)**
