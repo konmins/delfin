@@ -25,6 +25,15 @@ import os
 import struct
 import sys
 
+# Windows CI runner 的 stdout 默认走 cp1252 / cp936，本脚本输出含中文，
+# 不强制 UTF-8 会在 print 阶段就抛 UnicodeEncodeError —— 断言还没跑就挂了。
+# 而且报错信息本身会被吞掉，很容易误判成「PE 不合格」。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 UPX_SECTION_PREFIXES = ("UPX0", "UPX1", "UPX2", "UPX!")
 
 # 版本资源里必须存在的键

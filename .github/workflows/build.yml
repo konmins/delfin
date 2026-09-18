@@ -26,6 +26,10 @@ concurrency:
 env:
   PYTHON_VERSION: '3.13'
   EXE_NAME: dsh-tray.exe
+  # Windows runner 的控制台默认 codepage 不是 UTF-8，项目里的脚本会打印中文，
+  # 不强制的话会在 print 阶段抛 UnicodeEncodeError（曾把 PE 断言整个盖掉）。
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: utf-8
 
 jobs:
   # ------------------------------------------------------------------
