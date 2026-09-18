@@ -202,13 +202,36 @@ delfin/
 └── runtime/              Locally managed dsh runtime (created on first update, not in the repo)
 ```
 
+## Code signing policy
+
+Released `dsh-tray.exe` builds use **free code signing**:
+
+> **Free code signing provided by [SignPath.io](https://signpath.io?utm_source=foundation&utm_medium=github&utm_campaign=delfin),
+> certificate by the [SignPath Foundation](https://signpath.org?utm_source=foundation&utm_medium=github&utm_campaign=delfin).**
+
+- **Only CI artifacts are signed.** A signed binary was built by GitHub Actions from
+  this repository's source; binaries built on a developer machine cannot be submitted
+  for signing. The signature therefore proves the file came from this repository's
+  workflow.
+- **Every release requires manual approval** — pushing a tag alone does not produce a
+  signed release.
+- **An unsigned version is never published**: the release job requires signing to have
+  succeeded first.
+
+Full policy, including team roles and how to verify a signature: [CODE_SIGNING.md](CODE_SIGNING.md)
+Privacy: [PRIVACY.md](PRIVACY.md) — no personal data collected, no telemetry.
+
+> **Status:** signing takes effect with the next release. The current v0.1.0 predates
+> the signing setup and is **still unsigned** — so downloading it today will still show
+> the "Unknown publisher" prompt (see the FAQ below).
+
 ## FAQ
 
 **I get an "Unknown publisher" / "Windows protected your PC" prompt when I double-click?**
 
-That is **SmartScreen's reputation prompt, not a malware verdict** — the exe is not code signed,
-so Windows cannot verify the publisher and blocks freshly downloaded programs by default.
-Allow it either way:
+That is **SmartScreen's reputation prompt, not a malware verdict** — Windows shows it whenever it
+cannot verify the publisher (an unsigned binary, or a newly signed one whose download reputation
+has not accumulated yet). See the [code signing policy](#code-signing-policy). Allow it either way:
 
 1. **Click "More info" → "Run anyway"** — fastest, applies to that one file.
 2. **Right-click the exe → Properties → tick "Unblock"** — strips the mark-of-the-web, no prompt

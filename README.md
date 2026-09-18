@@ -196,12 +196,31 @@ delfin/
 └── runtime/              本地受管 dsh 运行时（首次更新时生成，不进版本库）
 ```
 
+## 代码签名政策（Code signing policy）
+
+本项目发布的 `dsh-tray.exe` 使用 **免费代码签名**：
+
+> **Free code signing provided by [SignPath.io](https://signpath.io?utm_source=foundation&utm_medium=github&utm_campaign=delfin),
+> certificate by the [SignPath Foundation](https://signpath.org?utm_source=foundation&utm_medium=github&utm_campaign=delfin).**
+
+- **只签 CI 产物**：签名的二进制由 GitHub Actions 从本仓库源码构建，
+  本机手工打包的 exe 无法送签 —— 所以签名可以证明「这个文件确实来自本仓库的这条流水线」。
+- **每次发布需人工批准**，仅打 tag 不会自动产生已签名的发布。
+- **绝不发布未签名版本**：发布流水线以「签名成功」为前置条件。
+
+完整政策（含团队角色、验证签名的方法）：[CODE_SIGNING.md](CODE_SIGNING.md)
+隐私说明：[PRIVACY.md](PRIVACY.md) —— 不收集任何个人数据，无遥测。
+
+> **接入进度**：签名通道自下一个版本起生效。当前的 v0.1.0 发布于签名接入之前，
+> **仍未签名** —— 所以现在下载它，还是会看到「未知发布者」提示（见下方常见问题）。
+
 ## 常见问题
 
 **双击时提示「未知发布者 / Windows 已保护你的电脑」？**
 
-这是 SmartScreen 的**信誉提示，不是杀毒判定** —— exe 还没做代码签名，Windows 无法确认发布者，
-所以对从网络下载的程序一律先拦一次。放行方式任选其一：
+这是 SmartScreen 的**信誉提示，不是杀毒判定** —— Windows 无法确认发布者身份时（未签名的程序，
+或签名后的新发布者信誉尚未积累时）就会先拦一次。这与[代码签名政策](#代码签名政策code-signing-policy)有关，
+放行方式任选其一：
 
 1. **点「更多信息」→「仍要运行」** —— 最快，对该文件一次有效。
 2. **右键 exe →「属性」→ 底部勾选「解除锁定」** —— 去掉「来自 Internet」标记，之后双击不再提示。
