@@ -257,10 +257,14 @@ def update_available():
 def _check_task(verbose=True):
     """verbose=True：无论结果都提示；False：仅在发现新版本时提示（供启动自动检查用）"""
     ch = channel()
+    if verbose:
+        # 先给反馈：网络查询最慢要十几秒，不发提示用户会以为「点了没反应」
+        icon.notify(t("checking_update"), "DeepSeek Harness")
     try:
         tags = dsh_update.fetch_dist_tags()
         remote = tags.get(ch) or tags.get("latest")
     except Exception as e:
+        log_msg("检查更新失败: %s" % e)
         if verbose:
             icon.notify(t("check_failed", e), "DeepSeek Harness")
         return
@@ -281,23 +285,30 @@ def _update_task():
     refresh()
     try:
         ch = channel()
+        # 立刻回执：解析远端版本要走网络（最坏十几秒），中间不给反馈就是「点了没反应」
+        icon.notify(t("checking_update"), "DeepSeek Harness")
+        log_msg("更新开始（通道 %s，当前 v%s）" % (ch, local_version() or "未安装"))
         try:
             target = dsh_update.resolve_remote(ch)
         except Exception as e:
+            log_msg("更新中止：解析远端版本失败: %s" % e)
             icon.notify(t("check_update_failed", e), "DeepSeek Harness")
             return
         cur = local_version()
         if cur and not is_newer(target, cur):
+            log_msg("更新跳过：已是最新 v%s（远端 %s）" % (cur, target))
             icon.notify(t("already_latest", cur, ch), "DeepSeek Harness")
             return
         _latest_cache["tag"] = ch
         _latest_cache["version"] = target
+        log_msg("准备更新：v%s → v%s" % (cur or "未安装", target))
         icon.notify(t("downloading", target), "DeepSeek Harness")
         was_running = is_running()
         if was_running:
             stop_service()
         ok, err = dsh_update.install(RUNTIME_DIR, target, UPDATE_LOG)
         if not ok:
+            log_msg("更新失败: %s" % err)
             icon.notify(t("update_failed", err), "DeepSeek Harness")
             if was_running:
                 start_service()
@@ -306,6 +317,7 @@ def _update_task():
         if was_running:
             start_service()
         _latest_cache["version"] = None
+        log_msg("更新完成：v%s" % ver)
         icon.notify(t("updated", ver) + (t("service_restarted") if was_running else ""),
                     "DeepSeek Harness")
     finally:

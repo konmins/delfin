@@ -29,6 +29,7 @@ _STRINGS = {
     "found_new": ("发现新版本 v%s（当前 %s）\n通道 %s · 右键托盘 → 更新",
                   "New version available: v%s (current: %s)\nChannel %s · right-click the tray icon to update"),
     "not_installed": ("未安装", "not installed"),
+    "checking_update": ("正在检查更新…", "Checking for updates…"),
     "check_update_failed": ("检查更新失败：%s", "Update check failed: %s"),
     "already_latest": ("当前已是最新版本 v%s（通道 %s）",
                        "You are already on the latest version, v%s (channel %s)"),
