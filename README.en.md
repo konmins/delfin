@@ -11,6 +11,7 @@ Service status at a glance, start/stop/restart in one click, with built-in versi
 <sub>Delfin — "dolphin" in German and Spanish. Like the little dolphin in the corner of your taskbar, quietly watching over your dsh.</sub>
 
 [![Release](https://img.shields.io/github/v/release/konmins/delfin?label=release&color=4D6BFE)](https://github.com/konmins/delfin/releases)
+[![Build](https://github.com/konmins/delfin/actions/workflows/build.yml/badge.svg)](https://github.com/konmins/delfin/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4D6BFE.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%2F%2011-0078D4.svg)](#requirements)
 [![Python](https://img.shields.io/badge/python-3.9%2B-3776AB.svg)](#option-2-run-from-source)
