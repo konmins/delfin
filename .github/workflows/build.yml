@@ -1,0 +1,248 @@
+name: Build
+
+# 自动化构建 —— 这既是 SignPath 签名的前置条件（SignPath 只签 CI 产物，
+# 不接受本机手搓的包），本身也让构建可复现、Release 附件可追溯。
+#
+# 触发：
+#   - push 到 main：验证构建不坏
+#   - PR：同上，且不做签名/发布
+#   - 打 v* tag：构建 → 签名（若已启用）→ 上传到对应 Release
+#   - 手动触发：Actions 页面点 Run workflow
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.13'
+  EXE_NAME: dsh-tray.exe
+
+jobs:
+  # ------------------------------------------------------------------
+  # 1) 构建未签名 exe
+  # ------------------------------------------------------------------
+  build:
+    name: 构建
+    runs-on: windows-latest
+    outputs:
+      artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+      sha256: ${{ steps.hash.outputs.sha256 }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 打包 exe
+        # --clean 清掉上次的缓存，保证产物只依赖当前源码
+        run: pyinstaller --clean --noconfirm dsh-tray.spec
+
+      - name: 校验 PE 产物
+        # 把项目里「禁止 UPX / 必须带版本资源 / 不能是控制台程序」三条硬约定
+        # 变成 CI 能自动发现的错误 —— 这三条都跟杀软误报直接相关，回归代价很大
+        run: python .github/scripts/verify_pe.py dist/${{ env.EXE_NAME }}
+
+      - name: 记录未签名包 SHA256
+        id: hash
+        shell: pwsh
+        run: |
+          $path = "dist/$env:EXE_NAME"
+          $hash = (Get-FileHash $path -Algorithm SHA256).Hash.ToLower()
+          "sha256=$hash" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host ("未签名包 SHA256: " + $hash)
+
+      - name: 逻辑自检
+        # 会访问 npm registry 并查找本机 node，属于外部依赖 —— 失败不阻塞构建，
+        # 只在日志里留痕（runner 自带 Node，正常情况下应该通过）
+        continue-on-error: true
+        run: python selftest.py
+
+      - name: 上传未签名产物
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-tray-unsigned
+          path: dist/${{ env.EXE_NAME }}
+          if-no-files-found: error
+
+  # ------------------------------------------------------------------
+  # 2) SignPath 签名
+  #
+  # 默认关闭。SignPath 审核通过后，在仓库
+  #   Settings → Secrets and variables → Actions → Variables
+  # 里加以下变量，并把 SIGNPATH_ENABLED 设为 true 即可启用：
+  #   SIGNPATH_ENABLED              = true
+  #   SIGNPATH_ORGANIZATION_ID      = <SignPath 组织 ID>
+  #   SIGNPATH_PROJECT_SLUG         = <项目 slug>
+  #   SIGNPATH_SIGNING_POLICY_SLUG  = <签名策略 slug>（开源项目通常 release-signing）
+  # Secrets 里加（加密存放，不要放进 Variables）：
+  #   SIGNPATH_API_TOKEN            = <带 submitter 权限的 API Token>
+  #
+  # 注意：上传用的是 upload-artifact 默认行为（打包成 ZIP），
+  # 因此 SignPath 的 Artifact Configuration 根元素需要是 <zip-file>，内部匹配 dsh-tray.exe。
+  # 若你建了命名不同的自定义配置，把下面那行 artifact-configuration-slug 取消注释并填 slug。
+  # ------------------------------------------------------------------
+  sign:
+    name: SignPath 签名
+    needs: build
+    # PR 一律不签：fork 的 PR 拿不到 Secrets，签了必然失败、把 PR 变成红的；
+    # 而且 PR 产物本来就不该进入发布流程。
+    if: ${{ vars.SIGNPATH_ENABLED == 'true' && github.event_name != 'pull_request' }}
+    runs-on: windows-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 提交签名请求
+        id: sign
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          # artifact-configuration-slug: <自定义配置的 slug>
+          github-artifact-id: ${{ needs.build.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+          # 如果 SignPath 的 Artifact Configuration 里定义了自定义参数（如 version），
+          # 在这里用 parameters 传；没定义就别传，传了会报「参数未定义」。
+          # parameters: |
+          #   version: "0.1.0"
+
+      - name: 查看签名产物目录
+        shell: pwsh
+        run: Get-ChildItem -Path signed -Recurse | Select-Object FullName, Length
+
+      - name: 校验签名后的 PE
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path signed -Recurse -Filter $env:EXE_NAME |
+                 Select-Object -First 1
+          if (-not $exe) { throw "签名产物目录里找不到 $env:EXE_NAME" }
+          python .github/scripts/verify_pe.py $exe.FullName
+
+      - name: 校验签名有效
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path signed -Recurse -Filter $env:EXE_NAME |
+                 Select-Object -First 1
+          if (-not $exe) { throw "签名产物目录里找不到 $env:EXE_NAME" }
+          $sig = Get-AuthenticodeSignature $exe.FullName
+          $sig | Format-List Status, StatusMessage, SignerCertificate
+          if ($sig.Status -ne 'Valid') {
+            throw "签名校验失败：Status=$($sig.Status) / $($sig.StatusMessage)"
+          }
+          Write-Host ("签名者: " + $sig.SignerCertificate.Subject)
+
+      - name: 记录签名后 SHA256
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path signed -Recurse -Filter $env:EXE_NAME |
+                 Select-Object -First 1
+          $hash = (Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToLower()
+          Write-Host ("已签名包 SHA256: " + $hash)
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "**已签名包 SHA256**``$hash``"
+
+      - name: 上传已签名产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-tray-signed
+          path: signed/${{ env.EXE_NAME }}
+          if-no-files-found: error
+
+  # ------------------------------------------------------------------
+  # 3) 打 tag 时打包并上传到 Release
+  #
+  # 只在「构建 + 签名都成功」时才跑 —— 宁可不出包，也不要悄悄发一个未签名的版本。
+  # 已存在的 Release 只补附件，不动你写好的说明文案；
+  # 不存在时才创建（自动生成说明，你可以随后改成自己的版本）。
+  #
+  # 注意：不是只发 exe。dsh-tray.exe 启动服务时依赖同目录的 dsh-runner.cmd
+  # （见 dsh-tray.py 的 start_service：RUNNER 不存在就弹「未找到 dsh-runner.cmd」），
+  # 所以必须打成 zip 一起发，否则用户下载后点了「启动」也没反应。
+  # ------------------------------------------------------------------
+  release:
+    name: 打包并上传到 Release
+    needs: [build, sign]
+    # 直接以 needs.sign.result 为准，不依赖「自定义 if 会不会自动继承 success()」这类
+    # 含糊语义 —— 没签名就绝不发版，宁可不出包也不要悄悄发一个未签名的版本。
+    if: ${{ startsWith(github.ref, 'refs/tags/v') && needs.sign.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 检出代码（取 dsh-runner.cmd）
+        uses: actions/checkout@v4
+
+      - name: 取回已签名产物
+        uses: actions/download-artifact@v4
+        with:
+          name: dsh-tray-signed
+          path: out
+
+      - name: 打包发布 zip
+        env:
+          SHA256: ${{ needs.build.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          EXE=$(find out -name 'dsh-tray.exe' -print -quit)
+          if [ -z "${EXE}" ]; then echo "签名产物里找不到 dsh-tray.exe"; exit 1; fi
+
+          mkdir -p stage
+          cp "${EXE}" stage/dsh-tray.exe
+          cp dsh-runner.cmd stage/
+
+          ZIP="delfin-${GITHUB_REF_NAME}-win64.zip"
+          zip -j "${ZIP}" stage/dsh-tray.exe stage/dsh-runner.cmd
+
+          echo "--- 包内文件 ---"
+          unzip -l "${ZIP}"
+          echo "未签名包 SHA256: ${SHA256}"
+          echo "发布包 SHA256  : $(sha256sum "${ZIP}" | cut -d' ' -f1)"
+
+          {
+            echo "### Delfin ${GITHUB_REF_NAME}"
+            echo
+            echo "| 文件 | SHA256 |"
+            echo "|---|---|"
+            echo "| \`dsh-tray.exe\`（已签名，包内） | \`$(sha256sum stage/dsh-tray.exe | cut -d' ' -f1)\` |"
+            echo "| \`${ZIP}\` | \`$(sha256sum "${ZIP}" | cut -d' ' -f1)\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 附加到 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Release ${TAG} 已存在 —— 只补附件，不改动已有说明"
+          else
+            echo "Release ${TAG} 不存在 —— 创建并自动生成说明"
+            gh release create "${TAG}" --title "${TAG}" --generate-notes
+          fi
+
+          gh release upload "${TAG}" delfin-*-win64.zip --clobber
+
+          echo "--- 当前附件 ---"
+          gh release view "${TAG}" --json assets \
+            --jq '.assets[] | "\(.name)  \(.size) bytes"'

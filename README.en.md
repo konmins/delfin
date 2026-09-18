@@ -94,9 +94,17 @@ Drop a shortcut to `start-tray.vbs` into your Startup folder:
 
 ## Quick start
 
-### Option 1: grab the prebuilt exe
+### Option 1: grab the prebuilt package
 
-Download `dsh-tray.exe` from [Releases](https://github.com/konmins/delfin/releases), drop it anywhere, double-click.
+Download `delfin-v*-win64.zip` from [Releases](https://github.com/konmins/delfin/releases),
+**extract it anywhere and keep the two files inside together**, then double-click `dsh-tray.exe`.
+
+> **The archive contains two files — don't take just the exe:**
+> - `dsh-tray.exe` — the tray app itself
+> - `dsh-runner.cmd` — the service launcher that the tray's "Start" item invokes
+>
+> Without `dsh-runner.cmd` the tray still opens, but "Start" reports that the runner is missing.
+
 You need **Node.js** installed (it is what runs `dsh`).
 
 > **⚠️ Windows will show an "Unknown publisher" prompt — you have to allow it once**

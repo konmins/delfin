@@ -91,9 +91,17 @@ Delfin 把这些收进系统托盘：
 
 ## 快速开始
 
-### 方式一：下载现成的 exe
+### 方式一：下载现成的包
 
-到 [Releases](https://github.com/konmins/delfin/releases) 下载 `dsh-tray.exe`，放到任意目录，双击即可。
+到 [Releases](https://github.com/konmins/delfin/releases) 下载 `delfin-v*-win64.zip`，
+**解压到任意目录，保持包里的两个文件放在一起**，然后双击 `dsh-tray.exe`。
+
+> **包里必须同时有两个文件**，别只拖走 exe：
+> - `dsh-tray.exe` —— 托盘程序本体
+> - `dsh-runner.cmd` —— 服务启动器，点托盘里的「启动」时由它拉起 dsh
+>
+> 少了 `dsh-runner.cmd`，托盘能打开，但点「启动」会提示找不到运行器。
+
 需要本机已装 **Node.js**（`dsh` 依赖它）。
 
 > **⚠️ 双击时 Windows 会提示「未知发布者」，需要你手动放行一次**
