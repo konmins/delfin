@@ -200,15 +200,19 @@ jobs:
   release:
     name: 打包并上传到 Release
     needs: [build, sign]
-    # 直接以 needs.sign.result 为准，不依赖「自定义 if 会不会自动继承 success()」这类
-    # 含糊语义。三种情形分清楚：
+    # 为什么必须显式写 always()：只要 needs 里有 job 被跳过，下游 job 默认也会被跳过 ——
+    # 而「签名尚未接入」时 sign 恰好就是 skipped，不写 always() 的话这个 if 根本不会被求值，
+    # 「签名未启用也发版」就成了一句空话。
+    # 代价是 always() 连 build 的成败一起忽略了，所以得把 build 补回判断里，
+    # 否则构建失败时照样会发布。
+    #
+    # 三种签名状态：
     #   success            —— 签名已启用且签成功，发已签名包；
-    #   skipped            —— 签名尚未启用（SignPath 审核通过前，sign job 的 if 不成立
-    #                         会让它整个跳过），此时照样发版，但发的是未签名包，
-    #                         发布说明里必须写明这一点；
+    #   skipped            —— 签名尚未启用（SignPath 审核通过前），照样发版，
+    #                         但发的是未签名包，发布说明里必须写明这一点；
     #   failure / cancelled —— 签名已启用却失败，**绝不发版**：宁可不出包，
     #                         也不要悄悄把未签名的产物当成已签名的发出去。
-    if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.sign.result == 'success' || needs.sign.result == 'skipped') }}
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/v') && needs.build.result == 'success' && (needs.sign.result == 'success' || needs.sign.result == 'skipped') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
