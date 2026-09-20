@@ -22,7 +22,10 @@ NAMES = {"zh": "简体中文", "en": "English"}
 # key: (中文, English)
 _STRINGS = {
     # ---- 气泡通知 ----
-    "runner_missing": ("未找到 dsh-runner.cmd", "dsh-runner.cmd not found"),
+    # runner_missing：同目录没有 dsh-runner.cmd，且自动生成也失败了（目录不可写等）
+    # 参数是所在目录的绝对路径 —— 只说「未找到」用户根本不知道去哪放
+    "runner_missing": ("启动失败：无法创建 dsh-runner.cmd，请检查目录权限\n%s",
+                       "Failed to start: could not create dsh-runner.cmd — check folder permissions\n%s"),
     "start_failed": ("启动失败: %s", "Failed to start: %s"),
     "check_failed": ("检查失败：%s", "Check failed: %s"),
     "up_to_date": ("已是最新版本 v%s（通道 %s）", "Already on the latest version, v%s (channel %s)"),
