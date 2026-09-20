@@ -64,7 +64,7 @@ Right-click the tray icon:
 
 | Menu item | Description |
 | --- | --- |
-| `Status: running  ·  v0.1.5-rc.1` | Read-only status line, showing the current version |
+| `Status: running  ·  v0.1.5-rc.2` | Read-only status line, showing the current version |
 | `Open Web UI (http://127.0.0.1:3080)` | Opens the full token-bearing URL; greyed out while the service is down |
 | `Start service` / `Stop service` / `Restart service` | Stop and Restart are greyed out while the service is down, and vice versa |
 | `Check for updates` | Queries the `dist-tags` on the npm registry |
@@ -215,15 +215,17 @@ Released `dsh-tray.exe` builds use **free code signing**:
   workflow.
 - **Every release requires manual approval** — pushing a tag alone does not produce a
   signed release.
-- **An unsigned version is never published**: the release job requires signing to have
-  succeeded first.
+- **Once signing is enabled, an unsigned version is never published**: the release job
+  then requires signing to have succeeded first. **Until this project's SignPath
+  application is approved, releases are published unsigned**, and the release notes say
+  so explicitly.
 
 Full policy, including team roles and how to verify a signature: [CODE_SIGNING.md](CODE_SIGNING.md)
 Privacy: [PRIVACY.md](PRIVACY.md) — no personal data collected, no telemetry.
 
-> **Status:** signing takes effect with the next release. The current v0.1.0 predates
-> the signing setup and is **still unsigned** — so downloading it today will still show
-> the "Unknown publisher" prompt (see the FAQ below).
+> **Status:** signing is not enabled yet — the current v0.1.1 predates the signing setup
+> and is **still unsigned**, so downloading it will show the "Unknown publisher" prompt
+> (see the FAQ below).
 
 ## FAQ
 

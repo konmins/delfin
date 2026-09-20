@@ -187,7 +187,9 @@ jobs:
   # ------------------------------------------------------------------
   # 3) 打 tag 时打包并上传到 Release
   #
-  # 只在「构建 + 签名都成功」时才跑 —— 宁可不出包，也不要悄悄发一个未签名的版本。
+  # 跑的条件见下面的 if：签名已启用时要求「构建 + 签名都成功」——宁可不出包，
+  # 也不要悄悄发一个未签名的版本；签名尚未接入时（sign 被 skipped）发未签名包，
+  # 但发布说明与 Step Summary 里都会写明签名状态。
   # 已存在的 Release 只补附件，不动你写好的说明文案；
   # 不存在时才创建（自动生成说明，你可以随后改成自己的版本）。
   #
@@ -199,8 +201,14 @@ jobs:
     name: 打包并上传到 Release
     needs: [build, sign]
     # 直接以 needs.sign.result 为准，不依赖「自定义 if 会不会自动继承 success()」这类
-    # 含糊语义 —— 没签名就绝不发版，宁可不出包也不要悄悄发一个未签名的版本。
-    if: ${{ startsWith(github.ref, 'refs/tags/v') && needs.sign.result == 'success' }}
+    # 含糊语义。三种情形分清楚：
+    #   success            —— 签名已启用且签成功，发已签名包；
+    #   skipped            —— 签名尚未启用（SignPath 审核通过前，sign job 的 if 不成立
+    #                         会让它整个跳过），此时照样发版，但发的是未签名包，
+    #                         发布说明里必须写明这一点；
+    #   failure / cancelled —— 签名已启用却失败，**绝不发版**：宁可不出包，
+    #                         也不要悄悄把未签名的产物当成已签名的发出去。
+    if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.sign.result == 'success' || needs.sign.result == 'skipped') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -208,19 +216,27 @@ jobs:
       - name: 检出代码（取 dsh-runner.cmd）
         uses: actions/checkout@v4
 
-      - name: 取回已签名产物
+      - name: 取回产物（已签名优先，签名未启用时用未签名那份）
         uses: actions/download-artifact@v4
         with:
-          name: dsh-tray-signed
+          # Actions 表达式里的三元写法：sign 成功取已签名产物，否则取未签名的
+          name: ${{ needs.sign.result == 'success' && 'dsh-tray-signed' || 'dsh-tray-unsigned' }}
           path: out
 
       - name: 打包发布 zip
         env:
-          SHA256: ${{ needs.build.outputs.sha256 }}
+          SIGN_RESULT: ${{ needs.sign.result }}
         run: |
           set -euo pipefail
           EXE=$(find out -name 'dsh-tray.exe' -print -quit)
-          if [ -z "${EXE}" ]; then echo "签名产物里找不到 dsh-tray.exe"; exit 1; fi
+          if [ -z "${EXE}" ]; then echo "产物里找不到 dsh-tray.exe"; exit 1; fi
+
+          # sign 成功 = 已签名；skipped = 签名还没接入，发的是未签名包（说明里必须写明）
+          if [ "${SIGN_RESULT}" = "success" ]; then
+            STATE="已签名（SignPath Foundation）"
+          else
+            STATE="未签名（SignPath 接入中）"
+          fi
 
           mkdir -p stage
           cp "${EXE}" stage/dsh-tray.exe
@@ -231,15 +247,17 @@ jobs:
 
           echo "--- 包内文件 ---"
           unzip -l "${ZIP}"
-          echo "未签名包 SHA256: ${SHA256}"
-          echo "发布包 SHA256  : $(sha256sum "${ZIP}" | cut -d' ' -f1)"
+          echo "签名状态     : ${STATE}   (sign job result = ${SIGN_RESULT})"
+          echo "发布包 SHA256: $(sha256sum "${ZIP}" | cut -d' ' -f1)"
 
           {
             echo "### Delfin ${GITHUB_REF_NAME}"
             echo
+            echo "签名状态：**${STATE}**"
+            echo
             echo "| 文件 | SHA256 |"
             echo "|---|---|"
-            echo "| \`dsh-tray.exe\`（已签名，包内） | \`$(sha256sum stage/dsh-tray.exe | cut -d' ' -f1)\` |"
+            echo "| \`dsh-tray.exe\`（包内，${STATE}） | \`$(sha256sum stage/dsh-tray.exe | cut -d' ' -f1)\` |"
             echo "| \`${ZIP}\` | \`$(sha256sum "${ZIP}" | cut -d' ' -f1)\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 

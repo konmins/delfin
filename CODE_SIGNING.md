@@ -18,10 +18,14 @@ build is code signed.
 | Trusted build system | GitHub Actions |
 | Trigger | Pushing a `v*` tag |
 
-The pipeline is `build → sign → release`. The release job runs **only if signing
-succeeded**, so an unsigned binary is never published. The signed executable is packed
-into `delfin-v<version>-win64.zip` together with `dsh-runner.cmd` (the launcher the
-executable needs at runtime).
+The pipeline is `build → sign → release`. **Once code signing is enabled** through the
+repository variable `SIGNPATH_ENABLED`, the release job runs **only if signing
+succeeded** — from that point on, an unsigned binary is never published. Until this
+project's SignPath application is approved, releases are published **unsigned**, and
+the release notes state that explicitly.
+
+The executable is packed into `delfin-v<version>-win64.zip` together with
+`dsh-runner.cmd` (the launcher the executable needs at runtime).
 
 ### Local builds are never signed
 
@@ -70,7 +74,7 @@ or operating it.
 
 ## Verifying a signature
 
-After downloading a release, you can confirm the signature yourself.
+For a signed release, you can confirm the signature yourself.
 
 Right-click `dsh-tray.exe` → **Properties** → **Digital Signatures**. The signer should
 read `SignPath Foundation`.
@@ -99,7 +103,9 @@ Get-AuthenticodeSignature .\dsh-tray.exe | Format-List Status, SignerCertificate
 - **只签 CI 产物**：签名策略启用了「要求受信任构建系统」，本机手工打包的 exe 无法送签。
   因此签名可以证明「这个二进制确实由本仓库的源码、经上述流水线构建而来」。
 - **每次发布需人工批准**：仅打 tag 不会自动产生已签名的发布。
-- **发布包不含未签名版本**：`release` 阶段以「签名成功」为前置条件，没签名就不发版。
+- **签名启用后，发布包不含未签名版本**：一旦把仓库变量 `SIGNPATH_ENABLED` 设为 `true`，
+  `release` 阶段就以「签名成功」为前置条件，没签名就不发版。**在本项目的 SignPath 申请
+  获批之前，发布的是未签名版本**，发布说明里会明确标注这一点。
 
 **隐私**：Delfin 不收集任何个人数据，无遥测、无统计分析。唯一的对外请求是向公开的
 npm registry 查询 `dsh` 的最新版本号（匿名 GET，不含任何用户信息）。详见
